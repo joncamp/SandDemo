@@ -6,9 +6,9 @@ import { ReactP5Wrapper } from "@p5-wrapper/react";
 let grid: any[][] = [];
 
 // Consider making the canvas size based on the size of rows/cols
-const cellWidth = 10;
-let cols: number = 80;
-let rows: number = 60;
+const cellWidth = 5;
+let cols: number = 100;
+let rows: number = 200;
 let width: number = cols * cellWidth;
 let height: number = rows * cellWidth;
 let showGrid: boolean = false;
@@ -31,6 +31,50 @@ let flashCount: number = 0;
 const FLASH_DURATION = 15; // Number of flashes before removal
 let framesSinceLastUpdate = 0;
 const SETTLE_DELAY = 5; // Number of frames to wait before checking for paths
+
+// Define tetromino shapes (scaled up)
+const TETROMINOES = [
+  [ // I
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+  ],
+  [ // O
+    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1]
+  ],
+  [ // T
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+  ],
+  [ // L
+    [1, 1, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 0, 0]
+  ],
+  [ // J
+    [0, 0, 1, 1, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1, 1]
+  ],
+  [ // S
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 0, 0, 0, 0],
+    [1, 1, 0, 0, 0, 0, 0, 0]
+  ],
+  [ // Z
+    [1, 1, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0, 0, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 1, 1, 1, 1, 0, 0]
+  ]
+];
 
 function make2DArray(cols: number, rows: number, p5: P5CanvasInstance) {
   const arr = new Array(rows);
@@ -139,6 +183,47 @@ function createSandBall(grid: any[][], centerX: number, centerY: number, radiusI
   }
 }
 
+function placeTetromino(grid: any[][], startX: number, startY: number, tetromino: number[][], color: any) {
+  const startCol = Math.floor(startX / cellWidth);
+  const startRow = Math.floor(startY / cellWidth);
+  
+  // Calculate the center offset of the tetromino
+  const tetrominoWidth = tetromino[0].length;
+  const offsetCol = Math.floor(tetrominoWidth / 2);
+  
+  // Adjust the starting position to center the tetromino
+  const adjustedStartCol = startCol - offsetCol;
+
+  // Check if we can place the tetromino
+  for (let row = 0; row < tetromino.length; row++) {
+    for (let col = 0; col < tetromino[row].length; col++) {
+      if (tetromino[row][col]) {
+        const gridRow = startRow + row;
+        const gridCol = adjustedStartCol + col;
+        
+        // Check if placement is valid
+        if (gridRow < 0 || gridRow >= rows || 
+            gridCol < 0 || gridCol >= cols || 
+            grid[gridRow][gridCol] !== emptyColor) {
+          return false;
+        }
+      }
+    }
+  }
+
+  // Place the tetromino
+  for (let row = 0; row < tetromino.length; row++) {
+    for (let col = 0; col < tetromino[row].length; col++) {
+      if (tetromino[row][col]) {
+        const gridRow = startRow + row;
+        const gridCol = adjustedStartCol + col;
+        grid[gridRow][gridCol] = color;
+      }
+    }
+  }
+  return true;
+}
+
 function sketch(p5: P5CanvasInstance) {
   p5.setup = () => {
     p5.createCanvas(width, height);
@@ -217,8 +302,11 @@ function sketch(p5: P5CanvasInstance) {
         currentColorIndex = (currentColorIndex + 1) % COLORS.length;
         currentColor = p5.color(...COLORS[currentColorIndex]);
       } else {
-        // Left click places sand
-        createSandBall(grid, p5.mouseX, p5.mouseY, 3, currentColor);
+        // Left click places a random tetromino with a random color
+        const randomTetromino = TETROMINOES[Math.floor(Math.random() * TETROMINOES.length)];
+        const randomColorIndex = Math.floor(Math.random() * COLORS.length);
+        const randomColor = p5.color(...COLORS[randomColorIndex]);
+        placeTetromino(grid, p5.mouseX, p5.mouseY, randomTetromino, randomColor);
       }
     }
   }
