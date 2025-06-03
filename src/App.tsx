@@ -6,9 +6,9 @@ import { ReactP5Wrapper } from "@p5-wrapper/react";
 let grid: any[][] = [];
 
 // Consider making the canvas size based on the size of rows/cols
-const cellWidth = 5;
-let cols: number = 100;
-let rows: number = 200;
+const cellWidth = 10;
+let cols: number = 80;
+let rows: number = 100;
 let width: number = cols * cellWidth;
 let height: number = rows * cellWidth;
 let showGrid: boolean = false;
@@ -32,47 +32,51 @@ const FLASH_DURATION = 15; // Number of flashes before removal
 let framesSinceLastUpdate = 0;
 const SETTLE_DELAY = 5; // Number of frames to wait before checking for paths
 
-// Define tetromino shapes (scaled up)
+// Define tetromino shapes (scaled up 2x)
 const TETROMINOES = [
   [ // I
     [1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1]
   ],
   [ // O
-    [1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1],
+    [1, 1, 1, 1],
+    [1, 1, 1, 1],
+    [1, 1, 1, 1]
+  ],
+  [ // T
+    [0, 0, 1, 1, 0, 0],
+    [0, 0, 1, 1, 0, 0],
     [1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1]
   ],
-  [ // T
-    [0, 0, 1, 1, 1, 1, 0, 0],
-    [0, 0, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1]
-  ],
   [ // L
-    [1, 1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 0, 0]
+    [1, 1, 0, 0],
+    [1, 1, 0, 0],
+    [1, 1, 0, 0],
+    [1, 1, 0, 0],
+    [1, 1, 1, 1],
+    [1, 1, 1, 1]
   ],
   [ // J
-    [0, 0, 1, 1, 1, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 1]
+    [0, 0, 1, 1],
+    [0, 0, 1, 1],
+    [0, 0, 1, 1],
+    [0, 0, 1, 1],
+    [1, 1, 1, 1],
+    [1, 1, 1, 1]
   ],
   [ // S
-    [0, 0, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 1, 0, 0, 0, 0],
-    [1, 1, 0, 0, 0, 0, 0, 0]
+    [0, 0, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1],
+    [1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 0, 0]
   ],
   [ // Z
-    [1, 1, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 0, 0, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 1, 1, 1, 1, 0, 0]
+    [1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 0, 0],
+    [0, 0, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1]
   ]
 ];
 
